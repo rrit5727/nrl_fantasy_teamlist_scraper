@@ -32,17 +32,24 @@ async function processPlayers(inputFilePath) {
             }
         })
         .on('end', async () => {
+            // Add player numbers cycling from 1 to 17, repeating each number twice
+            const playersWithNumbers = players.map((player, index) => ({
+                number: Math.floor((index % 34) / 2) + 1,
+                name: player.name
+            }));
+
             // Set up CSV writer
             const csvWriter = createCsvWriter({
                 path: 'nrl_players.csv',
                 header: [
+                    { id: 'number', title: 'Player Number' },
                     { id: 'name', title: 'Player Name' }
                 ]
             });
 
             // Write to CSV file
-            await csvWriter.writeRecords(players);
-            console.log(`Successfully processed ${players.length} players to nrl_players.csv`);
+            await csvWriter.writeRecords(playersWithNumbers);
+            console.log(`Successfully processed ${playersWithNumbers.length} players to nrl_players.csv`);
         })
         .on('error', (error) => {
             console.error('An error occurred while reading the CSV file:', error);
