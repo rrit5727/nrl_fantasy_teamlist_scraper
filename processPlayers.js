@@ -34,7 +34,7 @@ async function processPlayers(inputFilePath) {
         .on('end', async () => {
             // Add player numbers cycling from 1 to 17, repeating each number twice
             const playersWithNumbers = players.map((player, index) => ({
-                number: Math.floor((index % 34) / 2) + 1,
+                number: `${Math.floor((index % 34) / 2) + 1}.`,
                 name: player.name
             }));
 
@@ -44,7 +44,8 @@ async function processPlayers(inputFilePath) {
                 header: [
                     { id: 'number', title: 'Player Number' },
                     { id: 'name', title: 'Player Name' }
-                ]
+                ],
+                alwaysQuote: false
             });
 
             // Write to CSV file
