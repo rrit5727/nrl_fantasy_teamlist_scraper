@@ -2,11 +2,9 @@ const fs = require('fs');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const csvParser = require('csv-parser');
 
-// Function to format player name
+// Function to format player name (now keeping full name)
 function formatPlayerName(fullName) {
-    const names = fullName.split(' ');
-    if (names.length < 2) return fullName;
-    return `${names[0][0]}. ${names.slice(1).join(' ')}`;
+    return fullName; // Return the full name unchanged
 }
 
 // Function to process player data
@@ -22,12 +20,16 @@ async function processPlayers(inputFilePath) {
         .on('data', (row) => {
             const line = row['Player Name'];
             if (line && validPrefixes.some(prefix => line.startsWith(prefix))) {
-                // Extract the player name (everything after "is number XX ")
-                const match = line.match(/is number \d+ (.+)$/);
+                // Extract both position and player name
+                const match = line.match(/^(.+?)\. is number (\d+) (.+)$/);
                 if (match) {
-                    const playerName = match[1].trim();
-                    const formattedName = formatPlayerName(playerName);
-                    players.push({ name: formattedName });
+                    const position = match[1];
+                    const number = match[2];
+                    const playerName = match[3].trim();
+                    
+                    // Keep the position with the player name
+                    const formattedEntry = `${position}. is number ${number} ${formatPlayerName(playerName)}`;
+                    players.push({ name: formattedEntry });
                 }
             }
         })
@@ -40,7 +42,7 @@ async function processPlayers(inputFilePath) {
 
             // Set up CSV writer
             const csvWriter = createCsvWriter({
-                path: 'nrl_players.csv',
+                path: 'teamlists.csv',
                 header: [
                     { id: 'number', title: 'Player Number' },
                     { id: 'name', title: 'Player Name' }
@@ -50,7 +52,7 @@ async function processPlayers(inputFilePath) {
 
             // Write to CSV file
             await csvWriter.writeRecords(playersWithNumbers);
-            console.log(`Successfully processed ${playersWithNumbers.length} players to nrl_players.csv`);
+            console.log(`Successfully processed ${playersWithNumbers.length} players to teamlists.csv`);
         })
         .on('error', (error) => {
             console.error('An error occurred while reading the CSV file:', error);

@@ -13,7 +13,7 @@ async function scrapePlayerNames() {
     const page = await context.newPage();
 
     try {
-        await page.goto('https://www.nrl.com/news/2024/08/13/nrl-team-lists-round-24/', {
+        await page.goto('https://www.nrl.com/news/2024/08/06/nrl-team-lists-round-23/', {
             timeout: 60000, // Increase timeout to 60 seconds
             waitUntil: 'domcontentloaded'
         });
@@ -27,9 +27,49 @@ async function scrapePlayerNames() {
             const playerElements = document.querySelectorAll('.team-list-profile__name');
             
             playerElements.forEach(playerEl => {
-                const fullName = playerEl.textContent.trim().split(/\s+/);
-                const formattedName = `${fullName[0][0]}. ${fullName.slice(1).join(' ')}`;
-                playersList.push({ name: formattedName });
+                // Extract the position and player name from the visually hidden span
+                const hiddenSpan = playerEl.querySelector('.u-visually-hidden');
+                if (hiddenSpan) {
+                    const text = hiddenSpan.textContent;
+                    
+                    // Skip reserve players (those with "Replacement" in their description)
+                    if (text.includes('Replacement')) {
+                        return; // Skip this iteration - don't include this player
+                    }
+                    
+                    // Extract player position and number
+                    const match = text.match(/(.+) for .+ is number (\d+)/);
+                    
+                    if (match) {
+                        // Get all text nodes and visible spans to form the complete name
+                        let firstName = '';
+                        let lastName = '';
+                        
+                        // Extract first name (text node)
+                        const textNodes = Array.from(playerEl.childNodes)
+                            .filter(node => node.nodeType === Node.TEXT_NODE)
+                            .map(node => node.textContent.trim())
+                            .filter(text => text.length > 0);
+                        
+                        if (textNodes.length > 0) {
+                            firstName = textNodes.join(' ').trim();
+                        }
+                        
+                        // Extract last name (from the span)
+                        const lastNameSpan = playerEl.querySelector('.u-font-weight-700');
+                        if (lastNameSpan) {
+                            lastName = lastNameSpan.textContent.trim();
+                        }
+                        
+                        // Combine into full name
+                        const fullName = `${firstName} ${lastName}`.trim();
+                        
+                        // Add to list with position prefix
+                        playersList.push({ 
+                            name: `${match[1]}. is number ${match[2]} ${fullName}` 
+                        });
+                    }
+                }
             });
             
             return playersList;
