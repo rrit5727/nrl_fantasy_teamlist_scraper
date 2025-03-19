@@ -19,6 +19,12 @@ async function processPlayers(inputFilePath) {
         .pipe(csvParser())
         .on('data', (row) => {
             const line = row['Player Name'];
+            
+            // Skip any line containing the word "Replacement"
+            if (line && line.includes('Replacement')) {
+                return;
+            }
+            
             if (line && validPrefixes.some(prefix => line.startsWith(prefix))) {
                 // Extract both position and player name
                 const match = line.match(/^(.+?)\. is number (\d+) (.+)$/);
@@ -62,3 +68,5 @@ async function processPlayers(inputFilePath) {
 // Sample usage
 const inputFilePath = 'players.csv'; // Path to the input CSV file
 processPlayers(inputFilePath).catch(console.error);
+
+module.exports = { processPlayers };

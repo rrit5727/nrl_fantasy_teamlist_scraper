@@ -13,7 +13,7 @@ async function scrapePlayerNames() {
     const page = await context.newPage();
 
     try {
-        await page.goto('https://www.nrl.com/news/2024/08/06/nrl-team-lists-round-23/', {
+        await page.goto('https://www.nrl.com/news/2025/03/18/nrl-team-lists-round-3/', {
             timeout: 60000, // Increase timeout to 60 seconds
             waitUntil: 'domcontentloaded'
         });

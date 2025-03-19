@@ -12,6 +12,11 @@ async function reformatPlayerData() {
             const line = row['Player Name'];
             
             if (line) {
+                // Skip players with "Reserve" in their description
+                if (line.includes('Reserve')) {
+                    return; // Skip this player
+                }
+                
                 // Extract the number and player name using regex
                 const match = line.match(/is number (\d+) (.+)$/);
                 if (match) {
