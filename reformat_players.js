@@ -30,7 +30,7 @@ async function reformatPlayerData() {
                 path: 'teamlists.csv',
                 header: [
                     { id: 'number', title: 'Player Number' },
-                    { id: 'name', title: 'Player Name' }
+                    { id: 'name', title: 'Player' }
                 ]
             });
 
